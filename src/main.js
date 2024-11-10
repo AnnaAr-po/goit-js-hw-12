@@ -8,21 +8,19 @@ import 'izitoast/dist/css/iziToast.min.css';
 const form = document.querySelector('.search-form');
 const loader = document.querySelector('.loader');
 const gallery = document.querySelector('.gallery');
+const loadBtn = document.querySelector(".btn-load");
 
 
-function showLoader() {
-  loader.style.display = 'flex';
-}
+let query = '';
+let page = 1;
+let PER_PAGE = 15;
 
-function hideLoader() {
-  loader.style.display = 'none';
-}
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  const request = event.currentTarget.elements.searchRequest.value.trim();
-  
-  if (request === "") {
+  query = event.currentTarget.elements.searchRequest.value.trim();
+
+  if (!query) {
     iziToast.warning({
       title: 'Warning',
       message: 'Please enter a valid search term.',
@@ -31,23 +29,49 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
-  showLoader();
+  page = 1;
   gallery.innerHTML = '';
-  
-  fetchImages(request)
-    .then(images => {
-      renderGallery(gallery, images);
-    })
-    .catch(() => {
-       iziToast.error({
-        title: 'Error',
-        message: 'Failed to fetch images. Please try again later.',
-        position: 'topRight'
+  loadBtn.style.display = 'none';
+ differentImages();
+});
+
+const differentImages = async () => {
+  try {
+    loader.style.display = 'none';
+    const data = await fetchImages(query, page);
+    
+
+    if (data.length === 0) {
+      iziToast.info({
+        message: 'Sorry, there are no images matching your search query.'
       });
-  
-      
-      })
-      .finally(() => {
-        hideLoader();
-      });
-    })
+      loadBtn.style.display = 'none';
+      return;
+    }
+
+    renderGallery(gallery, data);
+    page += 1;
+
+
+    if (data.length < PER_PAGE || page > Math.ceil(data.totalHits / PER_PAGE)) {
+      loadBtn.style.display = 'none';
+      iziToast.info({ message: 'We are sorry, but you have reached the end of search results.' });
+    } else {
+      loadBtn.style.display = 'block';
+    }
+  } catch (error) {
+    loadBtn.style.display = 'none';
+    iziToast.error({ title: 'Error', message: error.message });
+  }
+};
+
+loadBtn.addEventListener('click', async () => {
+  await differentImages();
+
+  const cardHeight = gallery.lastElementChild.getBoundingClientRect().height;
+  window.scrollBy({
+    left: 0,
+    top: cardHeight * 2,
+    behavior: "smooth"
+  });
+});
