@@ -54,14 +54,17 @@
 }
 
 .loader {
-position: fixed;
+display: none;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 20px;
   padding: 1px;
-  display: none;
-
+padding: 1px;
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
 }
 
 .btn-submit {
@@ -141,9 +144,7 @@ position: fixed;
         left: 50%;
         transform: translate(-50%, -50%);
 }
-.load-hidden {
-  display: none;
-}
+
 
 .btn-load {
   display: none;

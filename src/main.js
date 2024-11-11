@@ -8,7 +8,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 const form = document.querySelector('.search-form');
 const loader = document.querySelector('.loader');
 const gallery = document.querySelector('.gallery');
-const loadBtn = document.querySelector(".btn-load");
+const loadBtn = document.querySelector('.btn-load');
 
 
 let query = '';
@@ -37,9 +37,9 @@ form.addEventListener('submit', (event) => {
 
 const differentImages = async () => {
   try {
-    loader.style.display = 'none';
+    loader.style.display = 'block';
     const data = await fetchImages(query, page);
-    
+    loader.style.display = 'none';
 
     if (data.length === 0) {
       iziToast.info({
@@ -68,10 +68,9 @@ const differentImages = async () => {
 loadBtn.addEventListener('click', async () => {
   await differentImages();
 
-  const cardHeight = gallery.lastElementChild.getBoundingClientRect().height;
+  const cardHeight = document.querySelector('.gallery').lastElementChild.getBoundingClientRect();
   window.scrollBy({
-    left: 0,
-    top: cardHeight * 2,
+    top: cardHeight.height * 2,
     behavior: "smooth"
   });
 });
